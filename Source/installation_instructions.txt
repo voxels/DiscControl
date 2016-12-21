@@ -1,0 +1,5 @@
+installation instructions:
+	1) 	install node
+	2) 	install mosca
+	3) 	install express
+	4) 	install express application generator
