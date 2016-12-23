@@ -51,7 +51,9 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 Adafruit_MQTT_Publish localTime = Adafruit_MQTT_Publish(&mqtt, "/displayTime");
+Adafruit_MQTT_Subscribe frameTime = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/frameTime");
 Adafruit_MQTT_Subscribe frameBuffer = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/frameBuffer");
+Adafruit_MQTT_Subscribe *subscription;
 
 /*************************** Error Reporting *********************************/
 
@@ -75,53 +77,53 @@ void ethernetsSetup() {
   delay(1000); //give the ethernet a second to initialize
   Serial.println("IP address: "); Serial.println(Ethernet.localIP());
 
+//  mqtt.subscribe(&frameTime);
   mqtt.subscribe(&frameBuffer);
-
   // Setup MQTT subscriptions for throttle & error messages
-//  mqtt.subscribe(&throttle);
-//  mqtt.subscribe(&errors);
+  mqtt.subscribe(&throttle);
+  mqtt.subscribe(&errors);
 }
 
 uint32_t x=0;
 
 void loopEthernet() {
+//  Serial.println(millis());
   // Ensure the connection to the MQTT server is alive (this will make the first
   // connection and automatically reconnect when disconnected).  See the MQTT_connect
   // function definition further below.
   MQTT_connect();
 
   // this is our 'wait for incoming subscription packets' busy subloop
-  Adafruit_MQTT_Subscribe *subscription;
-
-  while ((subscription = mqtt.readSubscription(10))) {
-    if (subscription == &frameBuffer) {
-//      Serial.print("Frame received:\t");
-//      Serial.println(millis());
-        Serial.println("*");
-    }
-//    else if(subscription == &errors) {
-//      Serial.print(F("ERROR: "));
-//      Serial.println((char *)errors.lastread);
-//    } else if(subscription == &throttle) {
-//      Serial.println((char *)throttle.lastread);
-//    }
+  subscription = mqtt.readSubscription(1000);
+  if (subscription == &frameTime) {
+    Serial.println((char *)frameTime.lastread);
+  }
+  else if( subscription == &frameBuffer )
+  {      
+    Serial.println((char *)frameBuffer.lastread);
+  }
+  else if(subscription == &errors) {
+    Serial.print(F("ERROR: "));
+    Serial.println((char *)errors.lastread);
+  } else if(subscription == &throttle) {
+    Serial.println((char *)throttle.lastread);
   }
 
-  // Now we can publish stuff!
-  Serial.print(F("\nSending local time "));
-  Serial.print(millis());
-  Serial.print("...");
-  if (! localTime.publish(millis())) {
-    Serial.println(F("Failed"));
-  } else {
-    Serial.println(F("OK!"));
-  }
+//  // Now we can publish stuff!
+//  Serial.print(F("\nSending local time "));
+//  Serial.print(millis());
+//  Serial.print("...");
+//  if (! localTime.publish(millis())) {
+//    Serial.println(F("Failed"));
+//  } else {
+//    Serial.println(F("OK!"));
+//  }
 
-  // ping the server to keep the mqtt connection alive
+//  // ping the server to keep the mqtt connection alive
 //  if(! mqtt.ping()) {
 //    mqtt.disconnect();
 //  }
-
+//
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.

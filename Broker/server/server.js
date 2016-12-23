@@ -16,9 +16,9 @@ server.on('clientConnected', function(client){
 });
 
 server.on('published', function(packet, client){
-  if (packet.topic == "frameTime")
+  if (packet.topic == "/frameTime")
   {
-    	console.log('frameTime: ', packet.payload.toString() );
+    	console.log('/frameTime: ', packet.payload.toString() );
   }
 
   if (packet.topic == "/displayTime")
@@ -26,6 +26,12 @@ server.on('published', function(packet, client){
     if (client){
     console.log(client.id, '\tdisplayTime: ', packet.payload.toString());
     }
+  }
+
+  if (packet.topic == "/frameBuffer")
+  {
+    	// console.log('/frameBuffer: ', packet.payload );
+      console.log('*');
   }
 });
 
