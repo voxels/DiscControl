@@ -24,7 +24,7 @@ server.on('published', function(packet, client){
   if (packet.topic == "/displayTime")
   {
     if (client){
-    console.log(client.id, '\tdisplayTime: ', packet.payload.toString());
+    console.log('/displayTime: ', packet.payload.toString());
     }
   }
 

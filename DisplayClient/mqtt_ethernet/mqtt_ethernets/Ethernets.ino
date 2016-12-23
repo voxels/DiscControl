@@ -84,12 +84,40 @@ void ethernetsSetup() {
 
 uint32_t x=0;
 
-void loopEthernet() {
+bool loopEthernet() {
   // Ensure the connection to the MQTT server is alive (this will make the first
   // connection and automatically reconnect when disconnected).  See the MQTT_connect
   // function definition further below.
+  
   MQTT_connect();
+//  checkSubscriptions();
 
+//  // Now we can publish stuff!
+//  Serial.print(F("\nSending local time "));
+//  Serial.print(millis());
+//  Serial.print("...");
+//  if (! localTime.publish(millis())) {
+//    Serial.println(F("Failed"));
+//  } else {
+//    Serial.println(F("OK!"));
+//  }
+
+  // ping the server to keep the mqtt connection alive
+//  if(! mqtt.ping()) {
+//    mqtt.disconnect();
+//  }
+
+    if( mqtt.connected() )
+    {
+      return true;
+    }
+
+    return false;
+}
+
+void checkSubscriptions()
+{
+  /*
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
 
@@ -106,22 +134,7 @@ void loopEthernet() {
 //      Serial.println((char *)throttle.lastread);
 //    }
   }
-
-  // Now we can publish stuff!
-  Serial.print(F("\nSending local time "));
-  Serial.print(millis());
-  Serial.print("...");
-  if (! localTime.publish(millis())) {
-    Serial.println(F("Failed"));
-  } else {
-    Serial.println(F("OK!"));
-  }
-
-  // ping the server to keep the mqtt connection alive
-//  if(! mqtt.ping()) {
-//    mqtt.disconnect();
-//  }
-
+  */
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.

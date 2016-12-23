@@ -8,7 +8,8 @@ void setup()
 
 void loop()
 {
-  loopEthernet();
-//  loopLights();
+  if ( loopEthernet() ) {
+    loopLights();
+  }
 }
 

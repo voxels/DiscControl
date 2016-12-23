@@ -9,7 +9,7 @@ CRGB leds[NUM_LEDS];
 void lightsSetup() { 
 //  Serial.begin(57600);
 //  Serial.println("resetting");
-    FastLED.addLeds<APA102,11, 13, RGB>(leds, NUM_LEDS);
+    FastLED.addLeds<APA102,11, 13, BGR>(leds, NUM_LEDS);
     LEDS.setBrightness(255);
     colorall();
     fadeall();
@@ -21,7 +21,7 @@ void colorall() {
     static uint8_t hue = 0;
     for(int i = 0; i < NUM_LEDS; i++) {
     // Set the i'th led to red 
-    leds[i] = CHSV(hue++, 255, 255);
+    leds[i] = CRGB(255, 0, 0);
     // Show the leds
     FastLED.show(); 
   }
@@ -33,15 +33,12 @@ void colorTime(unsigned long _time)
     static uint8_t hue = 0;
     for(int i = 0; i < NUM_LEDS; i++) {
      // Set the i'th led to red 
-      leds[i] = CHSV(_time % 105 + 145, 255, 255);
-      // Show the leds
-      FastLED.show();   
+      leds[i] = CRGB(0, 255, 0);
+      leds[i].fadeLightBy( _time % 255 );
     }
 }
 
 void loopLights() { 
   colorTime(millis());
-    Serial.print("x");
     FastLED.show(); 
-//    fadeall();
 }
