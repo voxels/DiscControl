@@ -52,6 +52,7 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 Adafruit_MQTT_Publish localTime = Adafruit_MQTT_Publish(&mqtt, "/displayTime");
 Adafruit_MQTT_Subscribe frameBuffer = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/frameBuffer");
+Adafruit_MQTT_Subscribe *subscription;
 
 /*************************** Error Reporting *********************************/
 
@@ -90,51 +91,69 @@ bool loopEthernet() {
   // function definition further below.
   
   MQTT_connect();
-//  checkSubscriptions();
 
-//  // Now we can publish stuff!
-//  Serial.print(F("\nSending local time "));
-//  Serial.print(millis());
-//  Serial.print("...");
-//  if (! localTime.publish(millis())) {
-//    Serial.println(F("Failed"));
-//  } else {
-//    Serial.println(F("OK!"));
-//  }
+  if( !checkSubscriptions() )
+  {
+    return true;
+  }
 
   // ping the server to keep the mqtt connection alive
 //  if(! mqtt.ping()) {
 //    mqtt.disconnect();
 //  }
+//
+//    if( mqtt.connected() && publishTime() )
+//    {
+//      return true;
+//    }
 
-    if( mqtt.connected() )
-    {
-      return true;
-    }
-
-    return false;
+    return true;
 }
 
-void checkSubscriptions()
-{
-  /*
+bool checkSubscriptions()
+{  
+  if( !mqtt.connected() )
+  {
+    return false;    
+  }
+  
+  Serial.println("Checking subscriptions");
   // this is our 'wait for incoming subscription packets' busy subloop
-  Adafruit_MQTT_Subscribe *subscription;
 
   while ((subscription = mqtt.readSubscription(10))) {
     if (subscription == &frameBuffer) {
-//      Serial.print("Frame received:\t");
-//      Serial.println(millis());
         Serial.println("*");
     }
-//    else if(subscription == &errors) {
-//      Serial.print(F("ERROR: "));
-//      Serial.println((char *)errors.lastread);
-//    } else if(subscription == &throttle) {
-//      Serial.println((char *)throttle.lastread);
-//    }
   }
-  */
+
+  Serial.println("Finished reading subscriptions");
+  return true;
+}
+
+bool publishTime()
+{
+  // Now we can publish stuff!
+  Serial.print(F("\nSending local time "));
+  Serial.print(millis());
+  Serial.print("...");
+  if (! localTime.publish(millis())) {
+    Serial.println(F("Failed"));
+    return false;
+  } else {
+    Serial.println(F("OK!"));
+    return true;
+  }
+}
+
+void checkErrors()
+{
+    Serial.print(F("ERROR: "));
+    Serial.println((char *)errors.lastread);
+}
+
+void checkThrottle()
+{
+   Serial.println((char *)throttle.lastread);
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
@@ -146,14 +165,20 @@ void MQTT_connect() {
   if (mqtt.connected()) {
     return;
   }
+  else
+  {
+    Serial.println("Not connected");    
+  }
 
   Serial.print("Connecting to MQTT... ");
 
-  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+  if ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
        Serial.println(mqtt.connectErrorString(ret));
-       Serial.println("Retrying MQTT connection in 5 seconds...");
        mqtt.disconnect();
-       delay(5000);  // wait 5 seconds
+//       delay(5000);  // wait 5 seconds
   }
-  Serial.println("MQTT Connected!");
+  else
+  {
+    Serial.println("MQTT Connected!");
+  }
 }

@@ -8,8 +8,14 @@ void setup()
 
 void loop()
 {
+  Serial.println(millis());
   if ( loopEthernet() ) {
-    loopLights();
   }
+  else
+  {
+    Serial.println("Not connected");   
+  }
+
+  loopLights();
 }
 

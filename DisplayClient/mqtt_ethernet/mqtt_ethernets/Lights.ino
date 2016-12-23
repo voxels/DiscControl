@@ -39,6 +39,15 @@ void colorTime(unsigned long _time)
 }
 
 void loopLights() { 
+  Serial.println("Updating lights");
   colorTime(millis());
     FastLED.show(); 
+    delay(1);
 }
+
+void loopLights(uint8_t frameBuffer)
+{
+
+
+}
+
