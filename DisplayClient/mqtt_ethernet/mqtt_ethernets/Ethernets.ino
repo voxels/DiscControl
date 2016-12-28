@@ -79,55 +79,72 @@ void ethernetsSetup() {
   mqtt.subscribe(&frameBuffer);
 
   // Setup MQTT subscriptions for throttle & error messages
-//  mqtt.subscribe(&throttle);
-//  mqtt.subscribe(&errors);
+  //  mqtt.subscribe(&throttle);
+  //  mqtt.subscribe(&errors);
 }
 
-uint32_t x=0;
+uint32_t x = 0;
 
-bool loopEthernet() {
+size_t loopEthernets() {
   // Ensure the connection to the MQTT server is alive (this will make the first
   // connection and automatically reconnect when disconnected).  See the MQTT_connect
   // function definition further below.
-  
+
   MQTT_connect();
 
-  if( !checkSubscriptions() )
-  {
-    return true;
-  }
+  bool foundFrame = checkSubscriptions();
 
   // ping the server to keep the mqtt connection alive
-//  if(! mqtt.ping()) {
-//    mqtt.disconnect();
-//  }
-//
-//    if( mqtt.connected() && publishTime() )
-//    {
-//      return true;
-//    }
+  //  if(! mqtt.ping()) {
+  //    mqtt.disconnect();
+  //  }
 
-    return true;
+  if ( mqtt.connected() && publishTime() )
+  {
+    /*
+    Serial.print("Found buffer length: ");
+    Serial.println(sizeof(frameBuffer.lastread));
+    for( int i = 0; i < sizeof(frameBuffer.lastread); i++ )
+    {
+      Serial.print(frameBuffer.lastread[i]);
+      Serial.print("\t");
+    }
+    Serial.println();
+    */
+    if( foundFrame )
+    {
+      return (sizeof(frameBuffer.lastread));      
+    }
+  }
+
+  return 0;
+}
+
+void updateBufferValues(uint8_t *_frameValues)
+{
+    memcpy(_frameValues,frameBuffer.lastread, sizeof(frameBuffer.lastread)); 
 }
 
 bool checkSubscriptions()
-{  
-  if( !mqtt.connected() )
+{
+  bool retval = false;
+  if ( !mqtt.connected() )
   {
-    return false;    
+    // do nothing
   }
-  
-  Serial.println("Checking subscriptions");
+
+//  Serial.println("Checking subscriptions");
   // this is our 'wait for incoming subscription packets' busy subloop
 
   while ((subscription = mqtt.readSubscription(10))) {
     if (subscription == &frameBuffer) {
-        Serial.println("*");
+      Serial.println("*");
+      retval = true;
     }
   }
 
-  Serial.println("Finished reading subscriptions");
-  return true;
+//  Serial.println("Finished reading subscriptions");
+  return retval;
 }
 
 bool publishTime()
@@ -147,13 +164,13 @@ bool publishTime()
 
 void checkErrors()
 {
-    Serial.print(F("ERROR: "));
-    Serial.println((char *)errors.lastread);
+  Serial.print(F("ERROR: "));
+  Serial.println((char *)errors.lastread);
 }
 
 void checkThrottle()
 {
-   Serial.println((char *)throttle.lastread);
+  Serial.println((char *)throttle.lastread);
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
@@ -167,15 +184,15 @@ void MQTT_connect() {
   }
   else
   {
-    Serial.println("Not connected");    
+    Serial.println("Not connected");
   }
 
   Serial.print("Connecting to MQTT... ");
 
   if ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
-       Serial.println(mqtt.connectErrorString(ret));
-       mqtt.disconnect();
-//       delay(5000);  // wait 5 seconds
+    Serial.println(mqtt.connectErrorString(ret));
+    mqtt.disconnect();
+    delay(3000);  // wait 3 seconds
   }
   else
   {
