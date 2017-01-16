@@ -11,6 +11,8 @@ FASTLED_USING_NAMESPACE
 //
 // -Mark Kriegsman, December 2014
 
+#define USE_MONOCHROME true
+
 #define FASTLED_FORCE_SOFTWARE_SPI
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
@@ -20,7 +22,7 @@ FASTLED_USING_NAMESPACE
 #define CLK_PIN   14
 #define LED_TYPE    APA102
 #define COLOR_ORDER BGR
-#define NUM_LEDS    255
+#define NUM_LEDS    780
 CRGB leds[NUM_LEDS];
 
 #define BRIGHTNESS          120
@@ -46,7 +48,6 @@ SimplePatternList gPatterns = { /*rainbow, rainbowWithGlitter, confetti,*/ sinel
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
-
 void loop()
 {
 //  testPatterns();
@@ -57,28 +58,47 @@ void loop()
 void updateBuffer()
 {
   int valueCount = loopEthernets();
+//  Serial.println("Checked subscriptions");
   if( valueCount > 0 )
   {
-    uint8_t frameValues[valueCount];  
-    updateBufferValues(frameValues);
-    for( int idx = 0; idx < valueCount; idx += 3 )
-    { 
-      leds[idx/3] = CRGB(frameValues[idx], frameValues[idx+1], frameValues[idx+2]);
-      /*
-      Serial.print(idx/3);
-      Serial.print("\t\tr: ");
-      Serial.print(frameValues[idx]);
-      Serial.print("\tg: ");
-      Serial.print(frameValues[idx+1]);
-      Serial.print("\tb: ");
-      Serial.println(frameValues[idx+2]);
-      */ 
+//    Serial.print("Found values count: " );
+//    Serial.println(valueCount);
+//    uint8_t frameValues[valueCount];  
+//    updateBufferValues(frameValues);
+
+    if( USE_MONOCHROME )
+    {
+      for ( int idx = 0; idx < NUM_LEDS; idx++ )
+      {
+        uint8_t value = valueAtIndex(idx);
+        leds[idx] = CRGB(value, value, value);        
+      }
     }
+    else
+    {
+        for( int idx = 0; idx < valueCount; idx += 3 )
+        { 
+          uint8_t red = valueAtIndex(idx);
+          uint8_t green = valueAtIndex(idx + 1);
+          uint8_t blue = valueAtIndex(idx + 2);
+          leds[idx/3] = CRGB(red, green, blue);
+        }      
+    }
+
     FastLED.show();
+
+//    Serial.print("Displayed values: ");
+//    Serial.print(sizeof(frameValues));
+//    Serial.print("\t\tr: ");
+//    Serial.print(frameValues[0]);
+//    Serial.print("\tg: ");
+//    Serial.print(frameValues[1]);
+//    Serial.print("\tb: ");
+//    Serial.println(frameValues[2]);
   }
   else
   {
-    
+    Serial.println("Empty frame");
   }  
 }
 

@@ -18,6 +18,8 @@
 #include <Dns.h>
 #include <Dhcp.h>
 
+#define TIMEOUT_LENGTH_MS 2 // Use this carefully because it fucks the framerate
+
 /************************* Ethernet Client Setup *****************************/
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
@@ -125,6 +127,14 @@ void updateBufferValues(uint8_t *_frameValues)
     memcpy(_frameValues,frameBuffer.lastread, sizeof(frameBuffer.lastread)); 
 }
 
+uint8_t valueAtIndex(int _index)
+{
+  if( _index < sizeof(frameBuffer.lastread))
+  {
+    return frameBuffer.lastread[_index];
+  }
+}
+
 bool checkSubscriptions()
 {
   bool retval = false;
@@ -136,11 +146,15 @@ bool checkSubscriptions()
 //  Serial.println("Checking subscriptions");
   // this is our 'wait for incoming subscription packets' busy subloop
 
-  while ((subscription = mqtt.readSubscription(10))) {
+  while ((subscription = mqtt.readSubscription(TIMEOUT_LENGTH_MS))) {
     if (subscription == &frameBuffer) {
       Serial.println("*");
       retval = true;
     }
+    else
+    {
+      Serial.println("/");            
+    }    
   }
 
 //  Serial.println("Finished reading subscriptions");
@@ -150,7 +164,7 @@ bool checkSubscriptions()
 bool publishTime()
 {
   // Now we can publish stuff!
-  Serial.print(F("\nSending local time "));
+  Serial.print(F("\n\\displayTime:\t"));
   Serial.print(millis());
   Serial.print("...");
   if (! localTime.publish(millis())) {
