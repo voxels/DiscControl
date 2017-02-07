@@ -2,15 +2,6 @@
 
 FASTLED_USING_NAMESPACE
 
-// FastLED "100-lines-of-code" demo reel, showing just a few 
-// of the kinds of animation patterns you can quickly and easily 
-// compose using FastLED.  
-//
-// This example also shows one easy way to define multiple 
-// animations patterns and have them automatically rotate.
-//
-// -Mark Kriegsman, December 2014
-
 #define USE_MONOCHROME true
 
 #define FASTLED_FORCE_SOFTWARE_SPI
@@ -24,6 +15,7 @@ FASTLED_USING_NAMESPACE
 #define COLOR_ORDER BGR
 #define NUM_LEDS    780
 CRGB leds[NUM_LEDS];
+uint8_t lastFrame[1024];
 
 #define BRIGHTNESS          120
 #define FRAMES_PER_SECOND  120
@@ -33,7 +25,6 @@ void setup() {
   delay(3000); // 3 second delay for recovery
   
   // tell FastLED about the LED strip configuration
-//  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
   // set master brightness control
@@ -57,15 +48,10 @@ void loop()
 
 void updateBuffer()
 {
+  updateBufferValues(lastFrame);
   int valueCount = loopEthernets();
-//  Serial.println("Checked subscriptions");
   if( valueCount > 0 )
   {
-//    Serial.print("Found values count: " );
-//    Serial.println(valueCount);
-//    uint8_t frameValues[valueCount];  
-//    updateBufferValues(frameValues);
-
     if( USE_MONOCHROME )
     {
       for ( int idx = 0; idx < NUM_LEDS; idx++ )
@@ -86,7 +72,6 @@ void updateBuffer()
     }
 
     FastLED.show();
-
 //    Serial.print("Displayed values: ");
 //    Serial.print(sizeof(frameValues));
 //    Serial.print("\t\tr: ");
@@ -98,7 +83,16 @@ void updateBuffer()
   }
   else
   {
-    Serial.println("Empty frame");
+    if( USE_MONOCHROME )
+    {
+      for( int idx = 0; idx < NUM_LEDS; idx++ )
+      {
+        uint8_t value = storedValueAtIndex(idx);
+        leds[idx] = CRGB(value, value, value);        
+      }      
+      FastLED.show();
+    }
+      Serial.println("Empty frame");
   }  
 }
 

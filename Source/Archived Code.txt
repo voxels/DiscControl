@@ -1,0 +1,84 @@
+removed code:
+
+    /*
+    private func sampleNodeMaterial(index:Int)->SCNMaterial
+    {
+        let firstMaterial = SCNMaterial()
+        
+        if !kUsingSimulator
+        {
+            firstMaterial.lightingModel = SCNMaterial.LightingModel.physicallyBased
+        }
+        
+        firstMaterial.diffuse.contents = self.baseImage?.maskWithColor(color: self.baseColors[index])
+        firstMaterial.roughness.contents = UIImage(named:"scuffed-plastic-roughness.png")
+        firstMaterial.metalness.contents = UIImage(named: "scuffed-plastic-metal.png")
+        firstMaterial.normal.contents = UIImage(named:"scuffed-plastic-normal.png")
+        return firstMaterial
+    }
+    */
+
+    /*
+    func updateSampledColors(_ frameCount:Double = 0 )
+    {
+        self.updateProcessingFrame(frameCount)
+    }
+    
+    private func updateStaticFrame(_ frameCount:Double = 0)
+    {
+        for index in 0...self.baseColors.count - 1
+        {
+            let value = Float(index + Int(frameCount)).truncatingRemainder(dividingBy: 128) / Float(255.0)
+            let color = UIColor(white: CGFloat(value), alpha: 1.0)
+            self.baseColors[index] = color
+        }
+    }
+    
+    private func updateProcessingFrame(_ frameCount:Double = 0)
+    {
+        self.baseColors = [UIColor]()
+    }
+   
+    func updateSampleTexture(frameCount:Double)
+    {
+        let size = UIScreen.main.bounds.size
+        //        self.sampleTexture = UIImage.verticalGradient(size: CGSize(width:kSampleTextureDim, height:kSampleTextureDim), topColor: UIColor.red, bottomColor: UIColor.blue)
+        
+        //        let outerRadius:Float = 10.0 + Float(countUpdates.truncatingRemainder(dividingBy: 60.0))
+        
+        let innerRadius:Float = 10.0 + 10.0 * Float(sin(frameCount.degreesToRadians))
+        let outerRadius:Float = 40.0 + 20.0 * Float(sin(frameCount.degreesToRadians))
+        
+        self.sampledImage = PatternGenerator.radialGradient(size: size, center: CGPoint(x:size.width / 2.0, y:size.height / 2.0), innerRadius: innerRadius, outerRadius:outerRadius, innerColor: UIColor.yellow, outerColor: UIColor.magenta )
+    }
+    
+    func updateTouchTexture(location:CGPoint)
+    {
+        /*
+        let newX = (clamp((location.x), min:(UIScreen.main.bounds.size.width / 2.0 - UIScreen.main.bounds.size.height / 2.0), max:(UIScreen.main.bounds.size.width / 2.0 + UIScreen.main.bounds.size.height / 2.0)) - (UIScreen.main.bounds.size.width / 2.0 - UIScreen.main.bounds.size.height / 2.0)) / UIScreen.main.bounds.size.height * 100.0
+        let newY = location.y / UIScreen.main.bounds.size.height * 100.0
+        */
+//        self.touchTexture = PatternGenerator.radialGradient(size: CGSize(width:kSampleTextureDim, height:kSampleTextureDim), center: CGPoint(x:newX, y:newY), innerRadius: 10.0, outerRadius:20.0, innerColor: UIColor.white, outerColor: UIColor.black )
+    }
+     */
+
+
+/*
+
+    private func buildSampleGraph(positions:[SCNVector3], materials:[SCNMaterial])->[SCNNode]
+    {
+        guard positions.count == materials.count else { return [SCNNode]() }
+    
+        var retval = [SCNNode]()
+    
+        for index in 0...positions.count - 1
+        {
+            let position = positions[index]
+            let material = materials[index]
+            retval.append(NodeFactory.shared.sampleNode(index:index, position: position, material:material))
+        }
+    
+        return retval
+    }
+    
+*/

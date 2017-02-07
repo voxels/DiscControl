@@ -23,13 +23,6 @@
 /************************* Ethernet Client Setup *****************************/
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
-//Uncomment the following, and set to a valid ip if you don't have dhcp available.
-//IPAddress iotIP (192, 168, 0, 42);
-//Uncomment the following, and set to your preference if you don't have automatic dns.
-//IPAddress dnsIP (8, 8, 8, 8);
-//If you uncommented either of the above lines, make sure to change "Ethernet.begin(mac)" to "Ethernet.begin(mac, iotIP)" or "Ethernet.begin(mac, iotIP, dnsIP)"
-
-
 /************************* Adafruit.io Setup *********************************/
 
 #define AIO_SERVER      "192.168.1.42"
@@ -124,6 +117,8 @@ size_t loopEthernets() {
 
 void updateBufferValues(uint8_t *_frameValues)
 {
+  Serial.print("Storing ");
+  Serial.println(sizeof(frameBuffer.lastread));
     memcpy(_frameValues,frameBuffer.lastread, sizeof(frameBuffer.lastread)); 
 }
 
@@ -133,6 +128,17 @@ uint8_t valueAtIndex(int _index)
   {
     return frameBuffer.lastread[_index];
   }
+
+  return 0;
+}
+
+uint8_t storedValueAtIndex(int _index)
+{
+  if (_index < sizeof(lastFrame) )
+  {
+    return lastFrame[_index];
+  }
+  return 0;
 }
 
 bool checkSubscriptions()
@@ -143,9 +149,7 @@ bool checkSubscriptions()
     // do nothing
   }
 
-//  Serial.println("Checking subscriptions");
   // this is our 'wait for incoming subscription packets' busy subloop
-
   while ((subscription = mqtt.readSubscription(TIMEOUT_LENGTH_MS))) {
     if (subscription == &frameBuffer) {
       Serial.println("*");
@@ -157,7 +161,6 @@ bool checkSubscriptions()
     }    
   }
 
-//  Serial.println("Finished reading subscriptions");
   return retval;
 }
 
